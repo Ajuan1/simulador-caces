@@ -1,379 +1,222 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador CACES EHEP</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>Simulador CACES</title>
+
 <style>
-body{font-family:'Inter',sans-serif}
-.hidden{display:none}
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+padding:20px;
+}
+
+.container{
+background:white;
+padding:20px;
+border-radius:10px;
+max-width:600px;
+margin:auto;
+}
+
+button{
+background:#25D366;
+color:white;
+border:none;
+padding:12px 20px;
+font-size:16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.progress{
+height:10px;
+background:#ddd;
+margin-top:10px;
+}
+
+.progress-bar{
+height:10px;
+background:#4CAF50;
+width:0%;
+}
+
+.opcion{
+display:block;
+margin:10px;
+padding:10px;
+background:#eee;
+border-radius:6px;
+cursor:pointer;
+}
 </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body>
 
-<header class="bg-white shadow p-4">
-<div class="max-w-4xl mx-auto flex justify-between">
-<h1 class="font-bold text-blue-800">Simulador CACES</h1>
-<button onclick="showView('admin')" class="text-xs text-gray-400 hover:text-blue-600">Admin / Subir CSV</button>
-</div>
-</header>
+<div class="container">
 
-<main class="max-w-2xl mx-auto p-6">
+<h1>Simulador CACES</h1>
 
-<!-- LANDING -->
+<div id="inicio">
 
-<section id="landing">
-<div class="bg-blue-600 text-white rounded-2xl p-8 text-center shadow-lg">
-<h2 class="text-3xl font-bold mb-4">¿Estás listo para el CACES?</h2>
-<p class="mb-6">Simula tu nota real hoy y descubre si estás listo para aprobar el examen EHEP.</p>
-<button onclick="showView('career')" class="bg-white text-blue-600 px-6 py-3 rounded-full font-bold">
-Empezar Simulacro
-</button>
-</div>
-</section>
+<h2>¿Estás listo para el CACES?</h2>
 
-<!-- CARRERA -->
+<select id="carrera">
+<option value="MEDICINA">Medicina</option>
+<option value="ODONTOLOGIA">Odontología</option>
+<option value="ENFERMERIA">Enfermería</option>
+</select>
 
-<section id="career" class="hidden">
-<h2 class="text-xl font-bold mb-6 text-center">Selecciona tu carrera</h2>
-<div class="grid gap-4">
-<button onclick="selectCareer('MEDICINA')" class="p-6 border rounded-xl hover:border-blue-500">Medicina</button>
-<button onclick="selectCareer('ODONTOLOGÍA')" class="p-6 border rounded-xl hover:border-blue-500">Odontología</button>
-<button onclick="selectCareer('ENFERMERÍA')" class="p-6 border rounded-xl hover:border-blue-500">Enfermería</button>
-</div>
-</section>
+<br><br>
 
-<!-- LOGIN -->
+<input id="nombre" placeholder="Nombre"><br><br>
+<input id="apellido" placeholder="Apellido"><br><br>
 
-<section id="login" class="hidden">
-
-<h2 class="text-xl font-bold mb-4 text-center">Ingresa tus datos</h2>
-
-<div class="bg-white p-6 rounded shadow space-y-3">
-
-<input id="nombre" placeholder="Nombre" class="w-full border p-2 rounded">
-<input id="apellido" placeholder="Apellido" class="w-full border p-2 rounded">
-<input id="email" placeholder="Email" class="w-full border p-2 rounded">
-
-<button onclick="startQuiz()" class="bg-blue-600 text-white w-full py-2 rounded">
-Iniciar simulador
-</button>
+<button onclick="empezar()">Empezar simulacro</button>
 
 </div>
 
-</section>
+<div id="quiz" style="display:none">
 
-<!-- QUIZ -->
+<div id="timer">Tiempo: 8:00</div>
 
-<section id="quiz" class="hidden">
+<div class="progress">
+<div class="progress-bar" id="barra"></div>
+</div>
 
-<div class="flex justify-between mb-4">
+<h3 id="pregunta"></h3>
 
-<span id="careerName"></span>
-<span>⏱ <span id="timer">08:00</span></span>
+<div id="opciones"></div>
 
 </div>
 
-<div class="w-full bg-gray-200 h-2 rounded mb-6">
-<div id="progress" class="bg-blue-600 h-2 rounded" style="width:0%"></div>
-</div>
+<div id="resultado" style="display:none">
 
-<div class="bg-white p-6 rounded shadow">
+<h2 id="nota"></h2>
 
-<p class="text-sm text-gray-500">
-Pregunta <span id="qnum"></span>/10
-</p>
-
-<h3 id="question" class="text-lg font-semibold mt-2 mb-4"></h3>
-
-<div id="options" class="space-y-2"></div>
-
-</div>
-
-<button id="nextBtn" onclick="nextQuestion()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hidden">
-Siguiente
-</button>
-
-</section>
-
-<!-- RESULTADOS -->
-
-<section id="results" class="hidden text-center">
-
-<h2 class="text-2xl font-bold">Resultados</h2>
-
-<div id="score" class="text-5xl font-bold text-blue-600 my-4"></div>
-
-<p id="resultText"></p>
-
-<div id="alertBox" class="bg-red-100 text-red-600 p-4 rounded mt-4 hidden">
-⚠️ Alerta: Tu nivel actual está por debajo del promedio de aprobación del CACES.
-</div>
-
-<a id="waBtn" target="_blank"
-class="block mt-6 bg-green-500 text-white py-4 rounded-xl font-bold">
-Quiero mejorar mi nota y asegurar mi entrada a la rural
+<a id="whatsapp" target="_blank">
+<button>Ir a WhatsApp</button>
 </a>
 
-<div id="feedback" class="text-left mt-8"></div>
+</div>
 
-</section>
-
-<!-- ADMIN -->
-
-<section id="admin" class="hidden">
-
-<h2 class="text-xl font-bold mb-4">
-Subir preguntas CSV
-</h2>
-
-<input type="file" id="csvFile" accept=".csv" class="mb-4">
-
-<button onclick="loadCSV()" class="bg-blue-600 text-white px-4 py-2 rounded">
-Cargar preguntas
-</button>
-
-</section>
-
-</main>
+</div>
 
 <script>
 
-let selectedCareer=""
-let quiz=[]
-let index=0
-let score=0
-let answers=[]
-let timer
-let time=480
+let preguntas = [
 
-function showView(v){
-["landing","career","login","quiz","results","admin"].forEach(id=>{
-document.getElementById(id).classList.add("hidden")
-})
-document.getElementById(v).classList.remove("hidden")
-}
+{carrera:"MEDICINA",p:"Órgano afectado en hepatitis",r:"Hígado",o:["Hígado","Pulmón","Riñón","Corazón"]},
+{carrera:"MEDICINA",p:"Valor normal de temperatura",r:"37",o:["35","37","39","41"]},
+{carrera:"MEDICINA",p:"Hormona de la insulina",r:"Páncreas",o:["Hígado","Páncreas","Riñón","Pulmón"]},
+{carrera:"MEDICINA",p:"Vitamina del sol",r:"D",o:["A","B","C","D"]},
+{carrera:"MEDICINA",p:"Frecuencia cardiaca normal adulto",r:"60-100",o:["30-50","60-100","120-150","200"]},
 
-function selectCareer(c){
-selectedCareer=c
-showView("login")
-}
+{carrera:"ODONTOLOGIA",p:"Tejido duro del diente",r:"Esmalte",o:["Pulpa","Esmalte","Encía","Ligamento"]},
+{carrera:"ODONTOLOGIA",p:"Caries afecta primero",r:"Esmalte",o:["Pulpa","Esmalte","Hueso","Encía"]},
+{carrera:"ODONTOLOGIA",p:"Número de dientes adulto",r:"32",o:["20","28","30","32"]},
+{carrera:"ODONTOLOGIA",p:"Enfermedad de encías",r:"Gingivitis",o:["Caries","Gingivitis","Herpes","Fluorosis"]},
+{carrera:"ODONTOLOGIA",p:"Especialista en encías",r:"Periodoncista",o:["Ortodontista","Endodoncista","Periodoncista","Cirujano"]},
 
-function startQuiz(){
-
-let nombre=document.getElementById("nombre").value
-let apellido=document.getElementById("apellido").value
-let email=document.getElementById("email").value
-
-if(!nombre||!apellido||!email){
-alert("Completa tus datos")
-return
-}
-
-quiz=questions.filter(q=>q.carrera==selectedCareer)
-
-index=0
-score=0
-answers=[]
-time=480
-
-document.getElementById("careerName").innerText=selectedCareer
-
-showView("quiz")
-
-startTimer()
-
-loadQuestion()
-
-}
-
-function startTimer(){
-timer=setInterval(()=>{
-time--
-let m=Math.floor(time/60)
-let s=time%60
-document.getElementById("timer").innerText=
-`${m}:${s.toString().padStart(2,'0')}`
-if(time<=0){
-clearInterval(timer)
-finishQuiz()
-}
-},1000)
-}
-
-function loadQuestion(){
-
-let q=quiz[index]
-
-document.getElementById("qnum").innerText=index+1
-document.getElementById("question").innerText=q.pregunta
-
-let opt=document.getElementById("options")
-opt.innerHTML=""
-
-q.opciones.forEach(o=>{
-let b=document.createElement("button")
-b.className="block w-full border p-3 rounded hover:bg-blue-50"
-b.innerText=o
-b.onclick=()=>select(o)
-opt.appendChild(b)
-})
-
-document.getElementById("progress").style.width=
-((index)/quiz.length*100)+"%"
-
-}
-
-function select(o){
-
-let q=quiz[index]
-
-answers.push({
-pregunta:q.pregunta,
-user:o,
-correct:q.respuesta,
-feedback:q.feedback,
-biblio:q.bibliografia
-})
-
-if(o==q.respuesta)score++
-
-document.getElementById("nextBtn").classList.remove("hidden")
-
-}
-
-function nextQuestion(){
-index++
-document.getElementById("nextBtn").classList.add("hidden")
-if(index>=quiz.length){
-finishQuiz()
-return
-}
-loadQuestion()
-}
-
-function finishQuiz(){
-
-clearInterval(timer)
-
-showView("results")
-
-let percent=Math.round(score/quiz.length*100)
-
-document.getElementById("score").innerText=percent+"%"
-
-if(percent<79){
-document.getElementById("alertBox").classList.remove("hidden")
-}
-
-let msg=`Hola, mi nota en el simulador fue ${percent}% y quiero inscribirme al curso de preparación`
-
-document.getElementById("waBtn").href=
-"https://wa.me/?text="+encodeURIComponent(msg)
-
-let fb=document.getElementById("feedback")
-fb.innerHTML=""
-
-answers.forEach(a=>{
-fb.innerHTML+=`
-<div class="border-b py-3">
-<p class="font-semibold">${a.pregunta}</p>
-<p>Tu respuesta: ${a.user}</p>
-<p class="text-green-600">Correcta: ${a.correct}</p>
-<p class="text-gray-500">${a.feedback}</p>
-<p class="text-xs">${a.biblio}</p>
-</div>
-`
-})
-
-}
-
-function loadCSV(){
-
-let file=document.getElementById("csvFile").files[0]
-
-let reader=new FileReader()
-
-reader.onload=function(e){
-
-let rows=e.target.result.split("\n")
-
-questions=[]
-
-rows.forEach(r=>{
-
-let c=r.split("-")
-
-if(c.length>=9){
-
-questions.push({
-carrera:c[0],
-pregunta:c[4],
-respuesta:c[5],
-opciones:c[6].replace(/"/g,"").split(";"),
-feedback:c[7],
-bibliografia:c[8]
-})
-
-}
-
-})
-
-alert("Preguntas cargadas")
-
-}
-
-reader.readAsText(file)
-
-}
-
-/* 10 preguntas por carrera */
-
-let questions=[
-
-/* MEDICINA */
-
-{carrera:"MEDICINA",pregunta:"Relación compresión ventilación RCP adulto",respuesta:"30:2",opciones:["15:2","30:2","20:2","10:2"],feedback:"Guía AHA",bibliografia:"AHA"},
-{carrera:"MEDICINA",pregunta:"Órgano afectado hepatitis",respuesta:"Hígado",opciones:["Riñón","Pulmón","Hígado","Páncreas"],feedback:"Inflamación hepática",bibliografia:"Medicina interna"},
-{carrera:"MEDICINA",pregunta:"Glándula que produce insulina",respuesta:"Páncreas",opciones:["Hígado","Páncreas","Tiroides","Riñón"],feedback:"Células beta",bibliografia:"Endocrino"},
-{carrera:"MEDICINA",pregunta:"Valor normal glucosa ayunas",respuesta:"70-100",opciones:["50-80","70-100","100-140","120-160"],feedback:"Rango normal",bibliografia:"ADA"},
-{carrera:"MEDICINA",pregunta:"Estudio inicial apendicitis",respuesta:"Ecografía",opciones:["Rayos X","Ecografía","TAC","RM"],feedback:"Primera línea",bibliografia:"Radiología"},
-{carrera:"MEDICINA",pregunta:"Agente tuberculosis",respuesta:"Mycobacterium tuberculosis",opciones:["E.coli","Mycobacterium tuberculosis","Virus","Salmonella"],feedback:"Bacilo",bibliografia:"Infectología"},
-{carrera:"MEDICINA",pregunta:"Frecuencia respiratoria adulto",respuesta:"12-20",opciones:["10-12","12-20","20-30","30-40"],feedback:"Normal adulto",bibliografia:"Semiología"},
-{carrera:"MEDICINA",pregunta:"Presión normal adulto",respuesta:"120/80",opciones:["100/60","120/80","140/100","160/100"],feedback:"Valor referencia",bibliografia:"Cardiología"},
-{carrera:"MEDICINA",pregunta:"Hormona estrés",respuesta:"Cortisol",opciones:["Insulina","Cortisol","Adrenalina","Tiroxina"],feedback:"Suprarrenal",bibliografia:"Endocrino"},
-{carrera:"MEDICINA",pregunta:"Órgano sistema respiratorio",respuesta:"Pulmón",opciones:["Hígado","Pulmón","Riñón","Bazo"],feedback:"Intercambio gases",bibliografia:"Anatomía"},
-
-/* ODONTOLOGÍA */
-
-{carrera:"ODONTOLOGÍA",pregunta:"Principal causa caries",respuesta:"Placa bacteriana",opciones:["Placa bacteriana","Calcio","Fruta","Genética"],feedback:"Ácidos bacterianos",bibliografia:"Odonto preventiva"},
-{carrera:"ODONTOLOGÍA",pregunta:"Tejido duro del diente",respuesta:"Esmalte",opciones:["Pulpa","Dentina","Esmalte","Cemento"],feedback:"Más duro",bibliografia:"Anatomía dental"},
-{carrera:"ODONTOLOGÍA",pregunta:"Número dientes adulto",respuesta:"32",opciones:["28","30","32","36"],feedback:"Dentición permanente",bibliografia:"Odonto"},
-{carrera:"ODONTOLOGÍA",pregunta:"Inflamación encía",respuesta:"Gingivitis",opciones:["Caries","Gingivitis","Periodontitis","Absceso"],feedback:"Encía inflamada",bibliografia:"Periodoncia"},
-{carrera:"ODONTOLOGÍA",pregunta:"Especialidad ortodoncia",respuesta:"Alineación dental",opciones:["Extracción","Alineación dental","Cirugía","Endodoncia"],feedback:"Brackets",bibliografia:"Ortodoncia"},
-{carrera:"ODONTOLOGÍA",pregunta:"Pulpa contiene",respuesta:"Nervios",opciones:["Hueso","Nervios","Esmalte","Cemento"],feedback:"Tejido blando",bibliografia:"Anatomía"},
-{carrera:"ODONTOLOGÍA",pregunta:"Radiografía dental común",respuesta:"Periapical",opciones:["Torax","Periapical","Abdomen","Craneo"],feedback:"Diagnóstico dental",bibliografia:"Radiología"},
-{carrera:"ODONTOLOGÍA",pregunta:"Sarro dental es",respuesta:"Placa calcificada",opciones:["Caries","Placa calcificada","Sangre","Esmalte"],feedback:"Cálculo dental",bibliografia:"Odonto"},
-{carrera:"ODONTOLOGÍA",pregunta:"Función saliva",respuesta:"Lubricación",opciones:["Lubricación","Digestión grasa","Hormona","Oxígeno"],feedback:"Protección oral",bibliografia:"Fisiología"},
-{carrera:"ODONTOLOGÍA",pregunta:"Especialidad conducto",respuesta:"Endodoncia",opciones:["Ortodoncia","Endodoncia","Periodoncia","Implantología"],feedback:"Tratamiento pulpar",bibliografia:"Endodoncia"},
-
-/* ENFERMERÍA */
-
-{carrera:"ENFERMERÍA",pregunta:"Temperatura normal",respuesta:"36.5-37.5",opciones:["35-36","36.5-37.5","38-39","39-40"],feedback:"Rango normal",bibliografia:"Fundamentos"},
-{carrera:"ENFERMERÍA",pregunta:"Pulso adulto",respuesta:"60-100",opciones:["40-60","60-100","100-140","120-160"],feedback:"Normal adulto",bibliografia:"Semiología"},
-{carrera:"ENFERMERÍA",pregunta:"Frecuencia respiratoria",respuesta:"12-20",opciones:["8-10","12-20","20-30","30-40"],feedback:"Normal",bibliografia:"Enfermería"},
-{carrera:"ENFERMERÍA",pregunta:"Instrumento presión",respuesta:"Esfigmomanómetro",opciones:["Termómetro","Esfigmomanómetro","Estetoscopio","Tensiómetro"],feedback:"Mide presión",bibliografia:"Clínica"},
-{carrera:"ENFERMERÍA",pregunta:"Inyección músculo",respuesta:"Intramuscular",opciones:["Subcutánea","Intramuscular","Intravenosa","Oral"],feedback:"IM",bibliografia:"Procedimientos"},
-{carrera:"ENFERMERÍA",pregunta:"Lavado manos previene",respuesta:"Infecciones",opciones:["Fracturas","Infecciones","Dolor","Cáncer"],feedback:"Control infecciones",bibliografia:"OMS"},
-{carrera:"ENFERMERÍA",pregunta:"Nivel oxígeno sangre",respuesta:"SpO2",opciones:["ECG","SpO2","EEG","EMG"],feedback:"Oxímetro",bibliografia:"Cuidados"},
-{carrera:"ENFERMERÍA",pregunta:"Sigla RCP",respuesta:"Reanimación cardiopulmonar",opciones:["Respiración clínica","Reanimación cardiopulmonar","Recuperación cardíaca","Respiración pulmonar"],feedback:"Soporte vital",bibliografia:"AHA"},
-{carrera:"ENFERMERÍA",pregunta:"Paciente acostado boca arriba",respuesta:"Supino",opciones:["Prono","Supino","Lateral","Fowler"],feedback:"Posición supina",bibliografia:"Enfermería"},
-{carrera:"ENFERMERÍA",pregunta:"Control signos vitales incluye",respuesta:"Presión arterial",opciones:["Glucosa","Presión arterial","Rayos X","Biopsia"],feedback:"Signos vitales",bibliografia:"Fundamentos"}
+{carrera:"ENFERMERIA",p:"Presión normal",r:"120/80",o:["80/50","100/60","120/80","160/100"]},
+{carrera:"ENFERMERIA",p:"Vía para medicamentos rápidos",r:"Intravenosa",o:["Oral","Intravenosa","Subcutánea","Tópica"]},
+{carrera:"ENFERMERIA",p:"Equipo para presión",r:"Tensiómetro",o:["Termómetro","Tensiómetro","Glucómetro","Estetoscopio"]},
+{carrera:"ENFERMERIA",p:"Temperatura alta",r:"Fiebre",o:["Hipotermia","Fiebre","Apnea","Hipoxia"]},
+{carrera:"ENFERMERIA",p:"Pulso se mide en",r:"Muñeca",o:["Pie","Muñeca","Nariz","Codo"]}
 
 ]
+
+let carrera=""
+let lista=[]
+let actual=0
+let correctas=0
+let tiempo=480
+
+function empezar(){
+
+carrera=document.getElementById("carrera").value
+
+lista=preguntas.filter(q=>q.carrera==carrera)
+
+document.getElementById("inicio").style.display="none"
+document.getElementById("quiz").style.display="block"
+
+mostrar()
+contador()
+
+}
+
+function mostrar(){
+
+let q=lista[actual]
+
+document.getElementById("pregunta").innerText=q.p
+
+let html=""
+
+q.o.forEach(op=>{
+html+=`<div class="opcion" onclick="responder('${op}')">${op}</div>`
+})
+
+document.getElementById("opciones").innerHTML=html
+
+let progreso=(actual/lista.length)*100
+document.getElementById("barra").style.width=progreso+"%"
+
+}
+
+function responder(op){
+
+if(op==lista[actual].r){
+correctas++
+}
+
+actual++
+
+if(actual>=lista.length){
+terminar()
+}else{
+mostrar()
+}
+
+}
+
+function contador(){
+
+let intervalo=setInterval(()=>{
+
+tiempo--
+
+let m=Math.floor(tiempo/60)
+let s=tiempo%60
+
+document.getElementById("timer").innerText="Tiempo: "+m+":"+s
+
+if(tiempo<=0){
+clearInterval(intervalo)
+terminar()
+}
+
+},1000)
+
+}
+
+function terminar(){
+
+document.getElementById("quiz").style.display="none"
+document.getElementById("resultado").style.display="block"
+
+let nota=Math.round((correctas/lista.length)*100)
+
+document.getElementById("nota").innerText="Tu nota: "+nota+"%"
+
+let mensaje="Hola mi nota fue "+nota+"% y quiero mejorar mi puntaje"
+
+document.getElementById("whatsapp").href="https://wa.me/?text="+encodeURIComponent(mensaje)
+
+}
 
 </script>
 
